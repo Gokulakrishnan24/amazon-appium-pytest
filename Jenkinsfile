@@ -2,53 +2,40 @@ pipeline {
     agent any
 
     environment {
-        PYTHON_ENV = "${WORKSPACE}/.venv/bin"
+        VENV_DIR = '.venv'
+        REPORT_DIR = 'reports'
     }
 
     stages {
         stage('📥 Checkout') {
             steps {
-                git 'https://github.com/Gokulakrishnan24/amazon-appium-pytest.git'
+                checkout scm
             }
         }
 
         stage('🐍 Set Up Python VirtualEnv') {
             steps {
-                sh '''
-                    python3 -m venv .venv
-                    source .venv/bin/activate
-                    pip install --upgrade pip
-                    pip install -r requirements.txt
-                '''
+                sh 'python3 -m venv .venv'
+                sh '.venv/bin/pip install --upgrade pip'
+                sh '.venv/bin/pip install -r requirements.txt'
             }
         }
 
         stage('🚀 Start Appium & Emulator') {
             steps {
-                sh '''
-                    nohup appium --log appium.log &
-                    emulator -avd YOUR_AVD_NAME -no-snapshot-load -no-audio -no-boot-anim &
-                    adb wait-for-device
-                    sleep 30
-                '''
+                echo '⚙️ Make sure emulator and Appium server are started manually or via a different job.'
             }
         }
 
         stage('🧪 Run Pytest') {
             steps {
-                sh '''
-                    source .venv/bin/activate
-                    pytest tests/test_search_product.py \
-                        --html=reports/report.html \
-                        --self-contained-html || true
-                '''
+                sh '.venv/bin/pytest tests/test_search_product.py --html=reports/report.html --self-contained-html || true'
             }
         }
 
         stage('📊 Archive Reports') {
             steps {
-                archiveArtifacts artifacts: 'reports/**/*.html', allowEmptyArchive: true
-                archiveArtifacts artifacts: 'reports/screenshots/*.png', allowEmptyArchive: true
+                archiveArtifacts artifacts: 'reports/*.html', fingerprint: true
             }
         }
     }
@@ -57,15 +44,11 @@ pipeline {
         always {
             echo '✅ Job Finished'
         }
+
         failure {
-    script {
-        try {
-            mail to: 'your-email@example.com',
-                 subject: "❌ Jenkins Job Failed: ${env.JOB_NAME}",
-                 body: "Job failed: ${env.BUILD_URL}"
-        } catch (Exception e) {
-            echo "Email not sent: ${e.message}"
+            echo '❌ Job Failed'
+            // Optional safe email block (remove if not configured):
+            // mail to: 'you@example.com', subject: 'Jenkins Job Failed', body: "Job URL: ${env.BUILD_URL}"
         }
     }
 }
-
