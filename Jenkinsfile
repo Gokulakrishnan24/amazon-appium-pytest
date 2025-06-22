@@ -5,11 +5,6 @@ pipeline {
         PYTHON_ENV = "${WORKSPACE}/.venv/bin"
     }
 
-    tools {
-        // If using tool installers
-        // python 'Python 3.9'
-    }
-
     stages {
         stage('📥 Checkout') {
             steps {
@@ -62,10 +57,3 @@ pipeline {
         always {
             echo '✅ Job Finished'
         }
-        failure {
-            mail to: 'your-email@example.com',
-                 subject: "❌ Jenkins Job Failed: ${env.JOB_NAME}",
-                 body: "Job failed: ${env.BUILD_URL}"
-        }
-    }
-}
