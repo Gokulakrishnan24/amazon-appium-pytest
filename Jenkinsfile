@@ -57,3 +57,10 @@ pipeline {
         always {
             echo '✅ Job Finished'
         }
+        failure {
+            mail to: 'your-email@example.com',
+                 subject: "❌ Jenkins Job Failed: ${env.JOB_NAME}",
+                 body: "Job failed: ${env.BUILD_URL}"
+        }
+    }
+}
