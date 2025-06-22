@@ -58,9 +58,14 @@ pipeline {
             echo '✅ Job Finished'
         }
         failure {
+    script {
+        try {
             mail to: 'your-email@example.com',
                  subject: "❌ Jenkins Job Failed: ${env.JOB_NAME}",
                  body: "Job failed: ${env.BUILD_URL}"
+        } catch (Exception e) {
+            echo "Email not sent: ${e.message}"
         }
     }
 }
+
