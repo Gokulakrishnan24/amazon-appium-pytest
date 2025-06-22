@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+.venv/
+.env
+
+# Reports & logs
+reports/
+*.log
+
+# Mac system files
+.DS_Store
+
